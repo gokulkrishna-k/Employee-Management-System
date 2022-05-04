@@ -5,11 +5,12 @@
 #include <windows.h>
 #include <fstream>
 #include <conio.h>
+#include <map>
 
 using namespace std;
 
 
-#include "consoleFunctions.h"
+#include "util.h"
 #include "person.h"
 #include "quicksort.h"
 #include "department.h"
@@ -28,7 +29,6 @@ void printHomeChoice(){
     cout << "7. Show All Employees" << endl;
     SET_CONSOLE_COLOR(WHITE);
     cout << "Please enter the related number of your requested command? ";
-
 }
 
 int main(){
@@ -42,38 +42,35 @@ int main(){
     cout << "Welcome to Human Resourse Management (HRM) Software of Company XYZ.\n\nTo do Specific task please choose one of the following commands.\n\n";
     
     do{
-        printHomeChoice();
-        cin >> choice;
-        switch(choice){
-            case 1:
-                hrmdep.AddPerson();
-                break;
-            case 2:
-                hrmdep.DeletePerson();
-                break;
-            case 3:
-                hrmdep.UpdatePerson();
-                break;
-            case 4:
-                hrmdep.ReportList();
-                break;
-            case 5:
-                hrmdep.SearchPerson();
-                break;
-            case 6:{
-                cout << "\n\nExiting system...\n";
-                exit(1);
-                break;
+      
+            printHomeChoice();
+            cin >> choice;
+            switch(choice){
+                case 1:
+                    hrmdep.AddPerson();
+                    break;
+                case 2:
+                    hrmdep.DeletePerson();
+                    break;
+                case 3:
+                    hrmdep.UpdatePerson();
+                    break;
+                case 4:
+                    hrmdep.ReportList();
+                    break;
+                // case 5:
+                //     hrmdep.SearchPerson();
+                //     break;
+                case 7:
+                    hrmdep.ShowAllEmployees();
+                    break;
+                default:
+                    cout << "\nInvalid Option!!!\n\n";
+                    break;
             }
-            case 7:
-                hrmdep.ShowAllEmployees();
-                break;
-            default:
-                cout << "Invalid Option!!!";
-                break;
-        }
-        WaitForKeyPress();
-        CLEAR_CONSOLE();
+            WaitForKeyPress();
+            CLEAR_CONSOLE();
+        
     }while(1);
     return 0;
 }

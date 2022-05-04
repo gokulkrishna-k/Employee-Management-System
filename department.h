@@ -1,95 +1,114 @@
 class Department {
     private:
-        Person employees[100];
+        map< int, Person> employees;
         int noOfEmployees = 0;
+        static int idCounter;
 
-        int binarySearch(Person arr[], int l, int r, double id){
-            while (l <= r) {
-                int m = l + (r - l) / 2;
-                if (arr[m].Get_PersonalID() == id) return m;
-                if (arr[m].Get_PersonalID() < id) l = m + 1;
-                else r = m - 1;
-            }
-            return -1;
+        void displayPerson(Person p){
+            cout << "FirstName\tLastName\tPersonalID\tSalaryPerYear(Euros)\n";
+            cout << "--------------------------------------------------------------------\n";
+            cout << p.Get_FirstName() << "\t\t" << p.Get_LastName() << "\t\t" << p.Get_PersonalID() << "\t\t" << p.Get_SalaryPerYear() << "\n";
+            cout << "--------------------------------------------------------------------\n";
         }
-    
+
     public:
+
+        Department() {  }
+
         void AddPerson(){
             CLEAR_CONSOLE();
-            SET_CONSOLE_COLOR(CYAN);
-            cout << "--- ADDING EMPLOYEE ---\n";
-            SET_CONSOLE_COLOR(WHITE);
-            int id;
-            if(noOfEmployees == 0){
-                id = 8921001;
-            }   
-            else{
-                id = employees[noOfEmployees - 1].Get_PersonalID() + 1;
+            ShowMessage("--- ADDING EMPLOYEE ---\n", CYAN);
+
+            string fName, lName;
+            double wHours, cpHour;
+            cout << "Please enter the first name of the employee? ";
+            cin >>  fName;
+            cout << "Please enter the last name of the employee? ";
+            cin >> lName;
+            
+            while (1) {
+                cout << "How many hours a week is his/her work? ";
+                cin >> wHours;
+                if(wHours > 0) {
+                    break;
+                }
+                else {
+                    ShowMessage("\nInvalid Working Hour for a Person!!!\nPlease Retry\n\n", RED);
+                }
             }
 
-            Person newPerson;
-            newPerson.CreatePerson(id);
-            newPerson.DisplayPerson();
+            while (1) {
+                cout << "How much per hour is his/her salary? ";
+                cin >> cpHour;
+                if(cpHour > 0) break;
+                else{
+                    ShowMessage("\nInvalid Cost Per Hour for a Person!!!\nPlease Retry\n\n", RED);
+                }
+            }
 
+            ShowMessage("\n\nThe empolyee with the following information is added to the system.\n\n",GREEN);
+
+            Person newPerson(idCounter, fName, lName, wHours, cpHour);
             cout << "\n\n";
-            this->employees[noOfEmployees] = newPerson;
+            employees.insert(pair<int, Person>(idCounter, newPerson));
+
+            
+   
+            displayPerson(newPerson);
+    
+            delete &newPerson;
+
+            idCounter++;
             noOfEmployees++;
 
         }
 
         void DeletePerson(){
             CLEAR_CONSOLE();
-            SET_CONSOLE_COLOR(RED);
-            cout << "--- DELETING EMPLOYEE ---\n";
-            SET_CONSOLE_COLOR(WHITE);
+            ShowMessage("--- DELETING EMPLOYEE ---\n", RED);
+
             int employeeToDelete;
 
             getPersonalIDtoDelete:
             cout << "Please enter the personal number of an employee: ";
             cin >> employeeToDelete;
 
-            int position = binarySearch(employees, 0, noOfEmployees - 1, employeeToDelete);
-            if(position !=  -1 ){
-                for(int i = position; i < noOfEmployees - 1; i++){
-                    employees[i] = employees[i + 1];
-                }
+            map<int, Person>::iterator itr;
+            itr = employees.find(employeeToDelete);
+            if(itr != employees.end()){
+                employees.erase(employeeToDelete);
                 noOfEmployees--;
-
-                SET_CONSOLE_COLOR(RED);
-                cout << "\nTHE EMPLOYEE INFO IS DELETED!!!\n";
-                SET_CONSOLE_COLOR(WHITE);
+                ShowMessage("\nTHE EMPLOYEE INFO IS DELETED!!!\n", RED);
+                
             }
             else {
                 char choice;
-                SET_CONSOLE_COLOR(RED);
-                cout << "Sorry, there is not any employee with the requested personal ID.\nDo you want to repeat delete by entering the new personal number (y/n)? ";
-                SET_CONSOLE_COLOR(WHITE);
+                ShowMessage("Sorry, there is not any employee with the requested personal ID.\nDo you want to repeat delete by entering the new personal number (y/n)? ", RED);
+
                 cin >> choice;
                 CLEAR_CONSOLE();
-                if(choice == 'y') 
+                if(choice == 'y')
                     goto getPersonalIDtoDelete;
             }
-
         }
 
         void UpdatePerson(){
 
             getPersonalIDtoSearch:
             CLEAR_CONSOLE();
-            SET_CONSOLE_COLOR(CYAN);
-            cout << "--- UPDATING EMPLOYEE INFO ---\n";
-            SET_CONSOLE_COLOR(WHITE);
+            
+            ShowMessage("--- UPDATING EMPLOYEE INFO ---\n", CYAN);
 
             int employeeToSearch;
 
             cout << "Please enter the personal number of an employee? ";
             cin >> employeeToSearch;
+            
+            map<int, Person>::iterator itr;
+            itr = employees.find(employeeToSearch);
 
-            int position = binarySearch(employees, 0, noOfEmployees - 1, employeeToSearch);
-
-            if(position != -1 ){
-               //  update
-                employees[position].DisplayPerson();
+            if(itr != employees.end()){
+                displayPerson(itr->second);
                 char cont;
                 do {
                     int choice;
@@ -99,48 +118,48 @@ class Department {
                     switch (choice) {
                         case 1:{
                             string firstName;
-                            cout << "Please enter new First name for " << employees[position].Get_LastName() << " ? ";
+                            cout << "Please enter new First name for " << itr->second.Get_LastName() << " ? ";
                             cin >> firstName;
-                            employees[position].Set_FirstName(firstName);
+                            itr->second.Set_FirstName(firstName);
                             break;}
                         case 2:{
                             string lastName;
-                            cout << "Please enter new Family name for " << employees[position].Get_LastName() << " ? ";
+                            cout << "Please enter new Family name for " << itr->second.Get_LastName() << " ? ";
                             cin >> lastName;
-                            employees[position].Set_LastName(lastName);
+                            itr->second.Set_LastName(lastName);
                             break;}
                         case 3:{
                             double workingHours;
-                            cout << "Please enter new Working hours per week for " << employees[position].Get_LastName() << " ? ";
+                            cout << "Please enter new Working hours per week for " << itr->second.Get_LastName() << " ? ";
                             cin >> workingHours;
-                            employees[position].Set_WorkingHours(workingHours);
+                            itr->second.Set_WorkingHours(workingHours);
                             break;}
                         case 4:{
                             double costPerHour;
-                            cout << "Please enter new Cost per hour for " << employees[position].Get_LastName() << " ? ";
+                            cout << "Please enter new Cost per hour for " << itr->second.Get_LastName() << " ? ";
                             cin >> costPerHour;
-                            employees[position].Set_CostPerHour(costPerHour);
+                            itr->second.Set_CostPerHour(costPerHour);
                             break;}
                     }  
                     
                     cout << "Do you like to update any other field (y/n)? ";
                     cin >> cont;
-                }while( cont == 'y');
+                } while( cont == 'y');
+
                 CLEAR_CONSOLE();
-                char ch;
                 SET_CONSOLE_COLOR(GREEN);
-                employees[position].DisplayPerson();
-                cout << "\nThe information for " << employees[position].Get_LastName() << " has been updated. Do you want to repeat update by entering the new personal number (y/n)? ";
+                displayPerson(itr->second);
+                cout << "\nThe information for " << itr->second.Get_LastName() << " has been updated. Do you want to repeat update by entering the new personal number (y/n)? ";
                 SET_CONSOLE_COLOR(WHITE);
+                
+                char ch;
                 cin >> ch;
                 if(ch == 'y') 
                     goto getPersonalIDtoSearch;
             }
             else {
                 char choice;
-                SET_CONSOLE_COLOR(RED);
-                cout << "Sorry, there is not any employee with the requested personal ID. Do you want to repeat update by entering the new personal number (y/n)? ";
-                SET_CONSOLE_COLOR(WHITE);
+                ShowMessage("Sorry, there is not any employee with the requested personal ID. Do you want to repeat update by entering the new personal number (y/n)? ", RED);
                 cin >> choice;
                 if(choice == 'y') 
                     goto getPersonalIDtoSearch;
@@ -152,16 +171,27 @@ class Department {
             char newReport;
             do{
                 CLEAR_CONSOLE();
-                SET_CONSOLE_COLOR(CYAN);
-                cout << "--- DEPARTMENT REPORT ---\n";
-                SET_CONSOLE_COLOR(WHITE);
+                ShowMessage("--- DEPARTMENT REPORT ---\n", CYAN);
                 int choice;
                 cout << "Please enter the related number of field which you would like to sort the list based on it.\n1. Family Name\n2. Salary\nPlease Enter you choice? ";
-                cin >> choice;
+                cin >> choice; 
 
-                quickSort(employees, 0 , noOfEmployees - 1, choice);
-                ShowAllEmployees();
-                quickSort(employees, 0 , noOfEmployees - 1, 3);
+                vector<Person> tempEmployeeVector;
+                 for (const auto &entry: employees) {
+                    tempEmployeeVector.push_back(entry.second);
+                }
+                quickSort(tempEmployeeVector, 0 , noOfEmployees - 1, choice);
+
+
+                cout << "FirstName\tLastName\tPersonalID\tSalaryPerYear (Euros)\n";
+                cout << "--------------------------------------------------------------------\n";
+
+                for (int i = 0; i < tempEmployeeVector.size(); i++) {
+                    cout << tempEmployeeVector[i].Get_FirstName() << "\t\t" << tempEmployeeVector[i].Get_LastName() << "\t\t" << tempEmployeeVector[i].Get_PersonalID() << "\t\t" << tempEmployeeVector[i].Get_SalaryPerYear() << "\n";
+                }
+
+                
+                delete &tempEmployeeVector;
                 
                 cout << "Do you want to generate a new report (y/n)? ";
                 cin >> newReport;      
@@ -169,104 +199,104 @@ class Department {
             }while(newReport == 'y');
         }
 
-        void SearchPerson(){
+        // void SearchPerson(){
                 
-                char newSearch;
-                do{
-                    CLEAR_CONSOLE();
-                    SET_CONSOLE_COLOR(CYAN);
-                    cout << "--- SEARCHING EMPLOYEE ---\n";
-                    SET_CONSOLE_COLOR(WHITE);
-                    int choice;
-                    cout << "Search is based on two Fields\n1. Family Name\n2. Salary\nPlease Enter you choice? ";
-                    cin >> choice;
-                    switch (choice) {
-                        case 2: { 
-                            double S_min, S_max;
-                            cout << "Please define your search range for the salary of the employees (S_min, S_max).\n";
-                            cout << "What is the minimum salary for search (S_min)? ";
-                            cin >> S_min;
-                            cout << "What is the maximum salary for search (S_max)? ";
-                            cin >> S_max;
-                            int res = 0;
+        //         char newSearch;
+        //         do{
+        //             CLEAR_CONSOLE();
+        //             SET_CONSOLE_COLOR(CYAN);
+        //             cout << "--- SEARCHING EMPLOYEE ---\n";
+        //             SET_CONSOLE_COLOR(WHITE);
+        //             int choice;
+        //             cout << "Search is based on two Fields\n1. Family Name\n2. Salary\nPlease Enter you choice? ";
+        //             cin >> choice;
+        //             switch (choice) {
+        //                 case 2: { 
+        //                     double S_min, S_max;
+        //                     cout << "Please define your search range for the salary of the employees (S_min, S_max).\n";
+        //                     cout << "What is the minimum salary for search (S_min)? ";
+        //                     cin >> S_min;
+        //                     cout << "What is the maximum salary for search (S_max)? ";
+        //                     cin >> S_max;
+        //                     int res = 0;
 
-                            for(int i = 0 ; i < noOfEmployees; i++){
+        //                     for(int i = 0 ; i < noOfEmployees; i++){
 
-                                if(employees[i].Get_SalaryPerYear() >= S_min && employees[i].Get_SalaryPerYear() <= S_max){
-                                    if(res == 0){
-                                        cout << "FirstName\tLastName\tPersonalID\tSalaryPerYear (Euros)\n";
-                                        cout << "--------------------------------------------------------------------\n";
-                                        cout << employees[i].Get_FirstName() << "\t\t" << employees[i].Get_LastName() << "\t\t" << employees[i].Get_PersonalID() << "\t\t" << employees[i].Get_SalaryPerYear() << "\n";
-                                        res++;
-                                    }
-                                    else{
-                                        cout << employees[i].Get_FirstName() << "\t\t" << employees[i].Get_LastName() << "\t\t" << employees[i].Get_PersonalID() << "\t\t" << employees[i].Get_SalaryPerYear() << "\n";
-                                    }
-                                }
-                            }
+        //                         if(employees[i].Get_SalaryPerYear() >= S_min && employees[i].Get_SalaryPerYear() <= S_max){
+        //                             if(res == 0){
+        //                                 cout << "FirstName\tLastName\tPersonalID\tSalaryPerYear (Euros)\n";
+        //                                 cout << "--------------------------------------------------------------------\n";
+        //                                 cout << employees[i].Get_FirstName() << "\t\t" << employees[i].Get_LastName() << "\t\t" << employees[i].Get_PersonalID() << "\t\t" << employees[i].Get_SalaryPerYear() << "\n";
+        //                                 res++;
+        //                             }
+        //                             else{
+        //                                 cout << employees[i].Get_FirstName() << "\t\t" << employees[i].Get_LastName() << "\t\t" << employees[i].Get_PersonalID() << "\t\t" << employees[i].Get_SalaryPerYear() << "\n";
+        //                             }
+        //                         }
+        //                     }
 
-                            if(res == 0){
-                                SET_CONSOLE_COLOR(RED);
-                                cout << "\nNO RESULTS FOUND!!!\n\n";
-                                SET_CONSOLE_COLOR(WHITE);
-                            }
+        //                     if(res == 0){
+        //                         SET_CONSOLE_COLOR(RED);
+        //                         cout << "\nNO RESULTS FOUND!!!\n\n";
+        //                         SET_CONSOLE_COLOR(WHITE);
+        //                     }
 
-                            break;
-                        }
-                        case 1: {
-                            string lastNameToFind;
-                            cout << "Please enter the family name of the employee? ";
-                            cin >> lastNameToFind;
+        //                     break;
+        //                 }
+        //                 case 1: {
+        //                     string lastNameToFind;
+        //                     cout << "Please enter the family name of the employee? ";
+        //                     cin >> lastNameToFind;
 
-                            int res = 0;
+        //                     int res = 0;
 
-                            for(int i = 0 ; i < noOfEmployees; i++){
-                                string lastName = employees[i].Get_LastName();
-                                transform(lastName.begin(), lastName.end(), lastName.begin(), ::tolower);
-                                transform(lastNameToFind.begin(), lastNameToFind.end(), lastNameToFind.begin(), ::tolower);
-                                if(lastName == lastNameToFind){
-                                    if(res == 0){
-                                        cout << "FirstName\tLastName\tPersonalID\tSalaryPerYear (Euros)\n";
-                                        cout << "--------------------------------------------------------------------\n";
-                                        cout << employees[i].Get_FirstName() << "\t\t" << employees[i].Get_LastName() << "\t\t" << employees[i].Get_PersonalID() << "\t\t" << employees[i].Get_SalaryPerYear() << "\n";
-                                        res++;
-                                    }
-                                    else{
-                                        cout << employees[i].Get_FirstName() << "\t\t" << employees[i].Get_LastName() << "\t\t" << employees[i].Get_PersonalID() << "\t\t" << employees[i].Get_SalaryPerYear() << "\n";
-                                    }
-                                }
-                            }
+        //                     for(int i = 0 ; i < noOfEmployees; i++){
+        //                         string lastName = employees[i].Get_LastName();
+        //                         transform(lastName.begin(), lastName.end(), lastName.begin(), ::tolower);
+        //                         transform(lastNameToFind.begin(), lastNameToFind.end(), lastNameToFind.begin(), ::tolower);
+        //                         if(lastName == lastNameToFind){
+        //                             if(res == 0){
+        //                                 cout << "FirstName\tLastName\tPersonalID\tSalaryPerYear (Euros)\n";
+        //                                 cout << "--------------------------------------------------------------------\n";
+        //                                 cout << employees[i].Get_FirstName() << "\t\t" << employees[i].Get_LastName() << "\t\t" << employees[i].Get_PersonalID() << "\t\t" << employees[i].Get_SalaryPerYear() << "\n";
+        //                                 res++;
+        //                             }
+        //                             else{
+        //                                 cout << employees[i].Get_FirstName() << "\t\t" << employees[i].Get_LastName() << "\t\t" << employees[i].Get_PersonalID() << "\t\t" << employees[i].Get_SalaryPerYear() << "\n";
+        //                             }
+        //                         }
+        //                     }
 
-                            if(res == 0){
-                                SET_CONSOLE_COLOR(RED);
-                                cout << "\nNO RESULTS FOUND!!!\n\n";
-                                SET_CONSOLE_COLOR(WHITE);
-                            }
-                        }
-                    }
-                    cout << "Do you want to do new search (y/n)? ";
-                    cin >> newSearch;
-                } while(newSearch == 'y');
-
-        }
+        //                     if(res == 0){
+        //                         SET_CONSOLE_COLOR(RED);
+        //                         cout << "\nNO RESULTS FOUND!!!\n\n";
+        //                         SET_CONSOLE_COLOR(WHITE);
+        //                     }
+        //                 }
+        //             }
+        //             cout << "Do you want to do new search (y/n)? ";
+        //             cin >> newSearch;
+        //         } while(newSearch == 'y');
+        // }
 
         void ShowAllEmployees(){
-            CLEAR_CONSOLE();
-            SET_CONSOLE_COLOR(CYAN);
-            cout << "--- EMPLOYEE ---\n";
-            SET_CONSOLE_COLOR(WHITE);
+            // CLEAR_CONSOLE();
+            ShowMessage("--- EMPLOYEE ---\n", CYAN);
 
             if(noOfEmployees == 0){
-                SET_CONSOLE_COLOR(RED);
-                cout << "\n\nNo Employees added yet!!\n\n";
-                SET_CONSOLE_COLOR(WHITE);
+                ShowMessage("\n\nNo Employees added yet!!\n\n", RED);
                 return;
             }
-            
+            map<int, Person>::iterator itr;
             cout << "FirstName\tLastName\tPersonalID\tSalaryPerYear (Euros)\n";
             cout << "--------------------------------------------------------------------\n";
-            for(int i = 0; i < noOfEmployees; i++){
-                cout << employees[i].Get_FirstName() << "\t\t" << employees[i].Get_LastName() << "\t\t" << employees[i].Get_PersonalID() << "\t\t" << employees[i].Get_SalaryPerYear() << "\n";
+
+            for (itr = employees.begin(); itr != employees.end(); itr++) {
+                cout << itr->second.Get_FirstName() << "\t\t" << itr->second.Get_LastName() << "\t\t" << itr->second.Get_PersonalID() << "\t\t" << itr->second.Get_SalaryPerYear() << "\n";
             }
+           
+            
         }
 };
+
+int Department::idCounter = 8921001;
