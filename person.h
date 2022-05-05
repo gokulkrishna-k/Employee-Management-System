@@ -58,4 +58,21 @@ class Person {
             return costPerHour;
         }
 
+        // auto getByFieldName(string filedName){
+        //     switch (filedName) {
+        //         case "FirstName":
+        //             return firstName;
+        //             break;
+        //         case "LastName":
+        //             return lastName;
+        //             break;
+        //         case "Salary":
+        //             return workingHours * costPerHour * 52;
+        //             break;
+        //         case "PersonalID":
+        //             return personalID;
+        //             break;
+        //     }
+        // }
+
 };

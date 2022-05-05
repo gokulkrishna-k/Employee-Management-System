@@ -15,6 +15,10 @@ class Department {
 
         Department() {  }
 
+        map< int, Person> Get_employees() {
+            return employees;
+        }
+
         void AddPerson(){
             CLEAR_CONSOLE();
             ShowMessage("--- ADDING EMPLOYEE ---\n", CYAN);
@@ -61,6 +65,16 @@ class Department {
             idCounter++;
             noOfEmployees++;
 
+        }
+
+        void addData(string fName,string lName, double wHours, double cpHour) {
+            Person newPerson(idCounter, fName, lName, wHours, cpHour);
+            cout << "\n\n";
+            employees.insert(pair<int, Person>(idCounter, newPerson)); 
+            displayPerson(newPerson);
+            delete &newPerson;
+            idCounter++;
+            noOfEmployees++;
         }
 
         void DeletePerson(){
