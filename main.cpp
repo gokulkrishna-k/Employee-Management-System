@@ -32,14 +32,90 @@ void printHomeChoice(){
 }
 
 void displayEmployees(map<int, Person> data){
+    
+
     map<int, Person>::iterator itr;
 
+    if(data.size() == 0){
+        ShowMessage("\n--- NO MATCHING RECORDS FOUND!!!\n\n", RED);
+        return;
+    }
     cout << "FirstName\tLastName\tPersonalID\tSalaryPerYear (Euros)\n";
     cout << "--------------------------------------------------------------------\n";
     for (itr = data.begin(); itr != data.end(); itr++) {
         cout << itr->second.Get_FirstName() << "\t\t" << itr->second.Get_LastName() << "\t\t" << itr->second.Get_PersonalID() << "\t\t" << itr->second.Get_SalaryPerYear() << "\n";
     }
 }
+
+
+map<int, Person> doQuerySearch(QuerySearch qs, map<int, Person> data){
+
+    map<int, Person> originalData = data;
+
+    map<int, Person> res = data;
+
+    
+
+    char ch;
+    do{
+        int choice, op;
+        StringOperation operationS;
+        ShowMessage("--- QUERY OPTION ---\n", CYAN);
+        ShowMessage("1. FirstName\n2. LastName\n3. ID\n4. Salary\n5. Select All Records\n", YELLOW);
+        
+        cout << "Please enter a value ? ";
+        cin >> choice;
+        
+        if(choice == 1 || choice == 2){
+            ShowMessage("\n1. StartsWith\n2. EndsWith\n3. Contains\n", YELLOW);
+            
+            cout << "Please choose an operation ? ";
+            cin >> op;
+            operationS = (StringOperation) op;
+            
+            string fieldName = choice == 1 ? "FirstName" : "LastName";
+            
+            string str;
+            cout << "Enter the search string? ";
+            cin >> str;
+            res = qs.SearchByFieldNameString(res, fieldName , operationS, str);
+        }
+        else if(choice == 3 || choice == 4){
+            ShowMessage("\n1. Equal To\n2. Not Equal To\n3. Less Than\n4. Greater Than\n5. Less than or Equal To\n6. Greater than or equal To\n", YELLOW);
+            NumOperation operationN;
+            
+            cout << "Please choose an operation ? ";
+            cin >> op;
+
+            operationN = (NumOperation) op;
+            string fieldName = choice == 3 ? "PersonalID" : "Salary";
+            
+            double val;
+            cout << "Enter the search Value? ";
+            cin >> val;
+            res = qs.SearchByFieldNameNumber(res, fieldName , operationN, val);
+        }
+
+        displayEmployees(res);
+
+        char performNot;
+        cout << "Do you want to Perform NOT operation on this query(y/n)? ";
+        cin >> performNot;
+
+        if(performNot == 'y' || performNot == 'Y'){
+            ShowMessage("\nRESULT After NOT Operation...\n", CYAN);
+            res = qs.NotOperation(res, originalData);
+            displayEmployees(res);
+        }
+       
+        cout << "Do you want to continue this query... (y/n)? ";
+        cin >> ch;
+    }while(ch == 'y' || ch == 'Y');
+
+
+    return res;
+}
+
 
 int main(){
 
@@ -75,85 +151,52 @@ int main(){
                     hrmdep.ShowAllEmployees();
                     break;
                 case 8: {
+                    int choice;
+                    char repeat;
+
+                    map<int, Person> prev,curr;
                     QuerySearch qs;
-                    map<int, Person> res = hrmdep.Get_employees();
-
-                    char ch;
-                    do{
-                        int choice, operation;
-                        ShowMessage("--- QUERY OPTION ---\n", CYAN);
-                        ShowMessage("1. FirstName\n2. LastName\n3.ID\n4.Salary\n", YELLOW);
-                        
-                        cout << "Please enter a value ? ";
+                    prev = doQuerySearch(qs, hrmdep.Get_employees());
+                    cout << "\nDo you want to Chain the query operations(y/n)? ";
+                    cin >> repeat;
+                    while(repeat == 'y' || repeat =='Y'){
+                        cout << "--- OPTIONS ---\n1. AND Queries\n2. OR Queries\n3. NOT Query\n";
+                        cout << "Please enter your choice? ";
                         cin >> choice;
-                        
-                        if(choice == 1 || choice == 2){
-                            ShowMessage("1. StartsWith\n2. EndsWith\n3. Contains", YELLOW);
-                            
-                            cout << "Please choose an operation ? ";
-                            cin >> operation;
-                            
-                            string fieldName = choice == 1 ? "FirstName" : "LastName";
-                            
-                            string str;
-                            cout << "Enter the search string? ";
-                            cin >> str;
-                            
-                            switch (operation){
-                                case startsWith:{
-                                    res = qs.SearchByFieldNameString(res, fieldName ,  startsWith, str); break;
-                                }
-                                case endsWith:{
-                                    res = qs.SearchByFieldNameString(res, fieldName ,  endsWith, str); break;
-                                }
-                                case contains:{
-                                    res = qs.SearchByFieldNameString(res, fieldName ,  contains, str); break;
-                                }
-                                default:
-                                    break;
-                            }
+                        switch(choice) {
+                            case 1:{
+                                curr = doQuerySearch(qs, hrmdep.Get_employees());
+                                ShowMessage("Current Query!!!\n", GREEN);
+                                displayEmployees(curr);
+                                ShowMessage("\nRESULT After AND Operation...\n", CYAN);
+                                prev = qs.AndOperation(prev, curr);
+                                displayEmployees(prev);
+                                
+                                break;
+                            }   
+                            case 2:{
+                                curr = doQuerySearch(qs, hrmdep.Get_employees());
+                                ShowMessage("Current Query!!!\n", GREEN);
+                                displayEmployees(curr);
+                                ShowMessage("\nRESULT After OR Operation...\n", CYAN);
+                                prev = qs.OrOperation(prev, curr);
+                                displayEmployees(prev);
+                                break;
+                            }   
+                            case 3:{
+                                ShowMessage("Current Query!!!\n", GREEN);
+                                displayEmployees(prev);
+                                ShowMessage("\nRESULT After NOT Operation...\n", CYAN);
+                                prev = qs.NotOperation(prev, hrmdep.Get_employees());
+                                displayEmployees(prev);
+                                break;
+                            }   
+                            default: 
+                                break;
                         }
-                        if(choice == 3 || choice == 4){
-                            ShowMessage("1. Equal To\n2. Not Equal To\n3. Less Than\n4. Greater Than\n5. Less than or Equal To\n6. Greater than or equal To\n", YELLOW);
-                            
-                            cout << "Please choose an operation ? ";
-                            cin >> operation;
-                            
-                            string fieldName = choice == 3 ? "PersonalID" : "Salary";
-                            
-                            double val;
-                            cout << "Enter the search Value? ";
-                            cin >> val;
-                            
-                            switch (operation){
-                                case equalTo:{
-                                    res = qs.SearchByFieldNameNumber(res, fieldName ,  equalTo, val); break;
-                                }
-                                case notEqualTo:{
-                                    res = qs.SearchByFieldNameNumber(res, fieldName ,  notEqualTo, val); break;
-                                }
-                                case lessThan:{
-                                    res = qs.SearchByFieldNameNumber(res, fieldName ,  lessThan, val); break;
-                                }
-                                case greaterThan:{
-                                    res = qs.SearchByFieldNameNumber(res, fieldName ,  greaterThan, val); break;
-                                }
-                                case lessThanEqualTo:{
-                                    res = qs.SearchByFieldNameNumber(res, fieldName ,  lessThanEqualTo, val); break;
-                                }
-                                case greaterThanEqualTo:{
-                                    res = qs.SearchByFieldNameNumber(res, fieldName ,  greaterThanEqualTo, val); break;
-                                }
-                                default :
-                                    break;
-                            }
-                        }
-
-                        displayEmployees(res);
-                        
-                        cout << "Do you want to continue (y/n)? ";
-                        cin >> ch;
-                    }while(ch == 'y' || ch == 'Y');
+                        cout << "\nDo you want to Chain the query operations(y/n)? ";
+                        cin >> repeat;
+                    }
                     break;
                 }
                 case 9:{
@@ -165,6 +208,7 @@ int main(){
                     hrmdep.addData("Bebin","John", 50, 23);
                     hrmdep.addData("Abdul","Reheman", 25, 23);
                     hrmdep.addData("Ashik","Meeran", 39, 23);
+                    break;
                 }
                 default:
                     cout << "\nInvalid Option!!!\n\n";

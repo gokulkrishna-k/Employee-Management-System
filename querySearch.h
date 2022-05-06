@@ -14,11 +14,13 @@ enum NumOperation {
 };
 
 class QuerySearch {
+
     public:
-    map<int, Person> SearchByFieldNameString(map<int, Person> employees, string fieldName, StringOperation operation, string substring){
+
+    map<int, Person> SearchByFieldNameString(map<int, Person> queryData, string fieldName, StringOperation operation, string substring){
         map<int, Person> res;
         map<int, Person>::iterator itr;
-        for (itr = employees.begin(); itr != employees.end(); itr++) {
+        for (itr = queryData.begin(); itr != queryData.end(); itr++) {
             if(operation == startsWith){
 
                 if(fieldName == "FirstName"){
@@ -41,7 +43,7 @@ class QuerySearch {
 
                     }
                 }
-                if(fieldName == "LastName"){
+                else if(fieldName == "LastName"){
                     if (itr->second.Get_LastName().find(substring, itr->second.Get_LastName().size() - substring.size()) != std::string::npos) {
                         res.insert(pair<int, Person>(itr->first, itr->second));
 
@@ -54,7 +56,7 @@ class QuerySearch {
                         res.insert(pair<int, Person>(itr->first, itr->second));
                     }
                 }
-                if(fieldName == "LastName"){
+                else if(fieldName == "LastName"){
                     if(itr->second.Get_LastName().find(substring) != -1) {
                         res.insert(pair<int, Person>(itr->first, itr->second));
                     }
@@ -65,11 +67,11 @@ class QuerySearch {
         return res;
     }   
 
-    map<int, Person> SearchByFieldNameNumber(map<int, Person> employees, string fieldName, NumOperation operation, double compareValue){
+    map<int, Person> SearchByFieldNameNumber(map<int, Person> queryData, string fieldName, NumOperation operation, double compareValue){
         map<int, Person> res;
 
         map<int, Person>::iterator itr;
-            for (itr = employees.begin(); itr != employees.end(); itr++) {
+            for (itr = queryData.begin(); itr != queryData.end(); itr++) {
 
             if(operation == equalTo){
 
@@ -151,10 +153,48 @@ class QuerySearch {
                 }
             }          
         }
-        
+
         return res;
     }
 
+    map<int, Person> AndOperation(map<int, Person> map1, map<int, Person> map2){
+        map<int, Person> res;
 
+        map<int, Person>::iterator itr;
 
+        for (itr = map1.begin(); itr != map1.end(); itr++) {
+            if(map2.find(itr->second.Get_PersonalID()) != map2.end()){
+                    res.insert(pair<int, Person>(itr->first, itr->second));
+            }
+        }
+
+        return res;
+    }
+    map<int, Person> OrOperation(map<int, Person> map1, map<int, Person> map2){
+        map<int, Person>::iterator itr;
+
+        for (itr = map2.begin(); itr != map2.end(); itr++) {
+            if(map1.find(itr->second.Get_PersonalID()) == map1.end()){
+                    map1.insert(pair<int, Person>(itr->first, itr->second));
+            }
+        }
+
+        return map1;
+    }
+    map<int, Person> NotOperation(map<int, Person> map1, map<int, Person> original){
+        
+        map<int, Person> res;
+
+        map<int, Person>::iterator itr;
+
+        for (itr = original.begin(); itr != original.end(); itr++) {
+            if(map1.find(itr->second.Get_PersonalID()) == map1.end()){
+                    res.insert(pair<int, Person>(itr->first, itr->second));
+            }
+
+        }
+        return res;
+    }
+    
 };
+

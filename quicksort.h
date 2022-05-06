@@ -13,7 +13,7 @@ int partition (vector<Person> &arr, int low, int high, int choice) {
     for (int j = low; j <= high - 1; j++) {
         switch (choice){
             case 1:{
-                if ((arr[j].Get_LastName().compare(pivotStr)) < 0 ) {
+                if ((arr[j].Get_LastName().compare(pivotStr)) > 0 ) {
                     i++; 
                     swap(&arr[i], &arr[j]);
                     
@@ -21,7 +21,7 @@ int partition (vector<Person> &arr, int low, int high, int choice) {
                 break;
             }
             case 2:{
-                if (arr[j].Get_SalaryPerYear()  < pivot) {
+                if (arr[j].Get_SalaryPerYear()  > pivot) {
                     i++; 
                     swap(&arr[i], &arr[j]);
                     
